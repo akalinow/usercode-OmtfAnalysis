@@ -13,9 +13,9 @@
     <version ClassVersion="1" checksum="1223179708"/>
    </class>
 
-   <class name="GenObj" ClassVersion="2">
-    <version ClassVersion="2" checksum="796709907"/>
-     <version ClassVersion="1" checksum="1951246927"/>
+   <class name="GenObj" ClassVersion="5">
+    <version ClassVersion="5" checksum="3940659420"/>
+     <version ClassVersion="4" checksum="2851172724"/>
    </class>
 
    <class name="MuonObj" ClassVersion="5">

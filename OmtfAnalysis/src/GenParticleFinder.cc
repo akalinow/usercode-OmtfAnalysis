@@ -50,8 +50,9 @@ void GenParticlefinder::getGenParticles(const edm::Event &ev){
     
     
     GenObj genObj(im->pt(),im->eta(),im->phi(),im->mass(),im->charge(),
-		  im->pdgId(),im->status(),im->vx(),im->vy(),im->vz(),0);
+		  im->pdgId(),im->status(),im->vx(),im->vy(),im->vz(),im->p4().Beta());
     theGenObjs.push_back(genObj);
+    // std::cout << genObj << std::endl;
   }  
 }
 
@@ -69,8 +70,11 @@ void GenParticlefinder::getTrackingParticles(const edm::Event &ev){
     if (abs(iTP->pdgId()) != 13) continue;
     
     GenObj genObj(iTP->pt(), iTP->eta(), iTP->phi(), iTP->mass(), iTP->charge(),
-		  iTP->pdgId(), iTP->status(), iTP->vx(), iTP->vy(), iTP->vz(), iTP->beta(),1);
+		  iTP->pdgId(), iTP->status(), iTP->vx(), iTP->vy(), iTP->vz(), iTP->p4().Beta());
     theGenObjs.push_back(genObj);
+    std::cout << "beta " << iTP->p4().Beta() << std::endl;
+    // std::cout << genObj << std::endl;
+
   }  
 }
 

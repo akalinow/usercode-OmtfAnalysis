@@ -16,6 +16,7 @@ def customize_L1TkMuonsGmt(process):
 ##########################################
 ##########################################
 def customize_outputCommands(process):
+
     process.FEVTSIMoutput.outputCommands.extend(cms.untracked.vstring('drop *',
                                                                       'keep *_genParticles_*_*',
                                                                       'keep *SimVertex*_*_*_*',
@@ -38,7 +39,10 @@ def customize_outputCommands(process):
                                                                       'keep *_l1tTTTracksFromTrackletEmulation_*_*',
                                                                       'keep *_l1tTkStubsGmt_*_*',
                                                                       'keep *_l1tTkMuonsGmt_*_*',
+                                                                      'keep *_l1tStubsGmt_*_*',
+                                                                      'keep *_gmtStubs_*_*',
                                                                       'keep *_Phase2TrackerDigi_*_*',
+                                                                      'keep *_simSiPixelDigis_*_*',
                                                                       'keep *_TTClusterAssociatorFromPixelDigis_*_*',
                                                                       'keep *_TTTrackAssociatorFromPixelDigisExtended_*_*',
                                                                       'keep *_TTStubsFromPhase2TrackerDigis_*_*',
@@ -47,6 +51,9 @@ def customize_outputCommands(process):
                                                                       'keep *_globalMuons_*_*',                                        
                                                                       'keep *_muons_*_*',                                                                      
     ))
+
+
+
     return process
 ##########################################
 ##########################################

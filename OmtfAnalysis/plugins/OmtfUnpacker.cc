@@ -727,7 +727,7 @@ void OmtfUnpackerPriv::produce(edm::Event& event, const edm::EventSetup& setup)
       // AMC trailer
       //
       //amc::Trailer trailerAmc = amc.trailer();              //this is the expected way but does not work 
-      amc::Trailer trailerAmc(amc.data().get()+amc.size()-1); //FIXME: the above is prefered but this works (CMSSW900)
+      amc::Trailer trailerAmc(amc.data().data()+amc.size()-1); //FIXME: the above is prefered but this works (CMSSW900)
       if (debug) {
         std::ostringstream str;
         str <<" AMC trailer:  "<<  std::bitset<64>(trailerAmc.raw()) << std::endl;
@@ -740,7 +740,7 @@ void OmtfUnpackerPriv::produce(edm::Event& event, const edm::EventSetup& setup)
       // AMC payload
       //
       const auto & payload64 = amc.data();
-      const Word64* word = payload64.get();
+      const Word64* word = payload64.data();
       for (unsigned int iWord= 1; iWord<= amc.size(); iWord++, word++) {
         if (iWord<=2 ) continue; // two header words for each AMC
         if (iWord==amc.size() ) continue; // trailer for each AMC 

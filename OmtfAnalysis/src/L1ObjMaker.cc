@@ -37,7 +37,7 @@ L1ObjMaker::L1ObjMaker(const  edm::ParameterSet & cfg, edm::ConsumesCollector&& 
   if (theConfig.exists("bmtfDataSrc")) theBmtfDataToken =  cColl.consumes<l1t::RegionalMuonCandBxCollection>(  theConfig.getParameter<edm::InputTag>("bmtfDataSrc") );
   if (theConfig.exists("emtfDataSrc")) theEmtfDataToken =  cColl.consumes<l1t::RegionalMuonCandBxCollection>(  theConfig.getParameter<edm::InputTag>("emtfDataSrc") );
   if (theConfig.exists("gmtDataSrc"))  theGmtDataToken  =  cColl.consumes<l1t::MuonBxCollection>( theConfig.getParameter<edm::InputTag>("gmtDataSrc") );
-  if (theConfig.exists("gmtEmulSrc")OmtfAnalysis/python/__pycache__)  theGmtEmulToken  =  cColl.consumes<l1t::MuonBxCollection>( theConfig.getParameter<edm::InputTag>("gmtEmulSrc") );
+  if (theConfig.exists("gmtEmulSrc"))  theGmtEmulToken  =  cColl.consumes<l1t::MuonBxCollection>( theConfig.getParameter<edm::InputTag>("gmtEmulSrc") );
   if (theConfig.exists("gmtPhase2EmulSrc"))  theGmtPhase2EmulToken  =  cColl.consumes<l1t::TrackerMuonCollection>(theConfig.getParameter<edm::InputTag>("gmtPhase2EmulSrc"));
   if (theConfig.exists("samSrc"))  theSAMToken  =  cColl.consumes<std::vector<l1t::SAMuon>>(theConfig.getParameter<edm::InputTag>("samSrc"));
  
@@ -165,20 +165,12 @@ bool L1ObjMaker::makeGmtPhase2Candidates(const edm::Event &iEvent,  L1Obj::TYPE 
   return true; 
 }
 
-<<<<<<< HEAD
 bool L1ObjMaker::makeSAMCandidates(const edm::Event &iEvent, L1Obj::TYPE type, std::vector<L1Obj> &result)
-=======
-bool L1ObjMaker::makeSAMuonMatch(const edm::Event &iEvent, L1Obj::TYPE type, std::vector<L1Obj> &result)
->>>>>>> 690409281ef87b491f58259c1061947df7f8c77c
 {
   edm::Handle<std::vector<l1t::SAMuon>> candidates;
   switch (type) {
     case L1Obj::SAMuon: {
-<<<<<<< HEAD
       iEvent.getByToken(theSAMToken, candidates);
-=======
-      iEvent.getByToken(theSAMuonMatchToken, candidates);
->>>>>>> 690409281ef87b491f58259c1061947df7f8c77c
       break;
     }
     default: {
@@ -203,13 +195,6 @@ bool L1ObjMaker::makeSAMuonMatch(const edm::Event &iEvent, L1Obj::TYPE type, std
     obj.commonStubQuality = aCand.commonStubQuality();
     obj.q   = aCand.hwQual();                        
     obj.bx = 0;
-<<<<<<< HEAD
-=======
-
-    
-
-
->>>>>>> 690409281ef87b491f58259c1061947df7f8c77c
     result.push_back(obj);
   }
   return true;

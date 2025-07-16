@@ -55,6 +55,16 @@ void GenParticlefinder::getGenParticles(const edm::Event &ev){
     genObj.setVertexXYZ(im->vx(),im->vy(),im->vz());
     genObj.setPtEtaPhiM(im->pt(),im->eta(),im->phi(),im->mass());    
     theGenObjs.push_back(genObj);
+    // // print genObj 
+    // std::cout << "GenParticle: " << std::endl;  
+    // std::cout << "GenParticle pt: " << genObj.pt() << std::endl;
+    // std::cout << "GenParticle eta: " << genObj.eta() << std::endl;
+    // std::cout << "GenParticle phi: " << genObj.phi() << std::endl;
+    // std::cout << "GenParticle charge: " << genObj.charge() << std::endl;
+    // std::cout << "GenParticle pdgId: " << genObj.pdgId() << std::endl;
+    // std::cout << "GenParticle status: " << genObj.status() << std::endl;
+    // std::cout << "GenParticle motherPdgId: " << genObj.motherId() << std::endl;
+    // std::cout << "GenParticle vertex: (" << genObj.vx() << ", " << genObj.vy() << ", " << genObj.vz() << ")" << std::endl;
   }  
 }
 

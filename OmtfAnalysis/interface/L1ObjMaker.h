@@ -7,6 +7,7 @@
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "DataFormats/L1TMuonPhase2/interface/SAMuon.h"
 
 namespace edm {class Event; }
 
@@ -20,6 +21,7 @@ private:
   bool makeRegCandidates(const edm::Event &ev, L1Obj::TYPE t, std::vector<L1Obj> &result);
   bool makeGmtCandidates(const edm::Event &ev, L1Obj::TYPE t, std::vector<L1Obj> &result);
   bool makeGmtPhase2Candidates(const edm::Event &ev, L1Obj::TYPE t, std::vector<L1Obj> &result);
+  bool makeSAMCandidates(const edm::Event &iEvent, L1Obj::TYPE type, std::vector<L1Obj> &result);
 
 private:
 

@@ -11,17 +11,17 @@ namespace {
   }
 }
                  
-double L1Obj::ptValue() const { return type==uGMTPhase2_emu ?  pt : (pt-1.)/2.; }
-double L1Obj::etaValue() const { return type==uGMTPhase2_emu ? eta : eta/240.*2.61; }
+double L1Obj::ptValue() const { return (type==uGMTPhase2_emu) ?  pt : (pt-1.)/2.; }
+double L1Obj::etaValue() const { return (type==uGMTPhase2_emu ) ? eta : eta/240.*2.61; }
 double L1Obj::phiValue() const {
     if (type==OMTF || type==OMTF_emu || type==EMTF) 
     return modulo2PI( ( (15.+iProcessor*60.)/360. + phi/576. ) *2*M_PI) ;  
     else if (type==BMTF) return modulo2PI( ( (-15.+iProcessor*30.)/360. + phi/576. ) *2*M_PI);
     else if (type==uGMT || type==uGMT_emu) return modulo2PI((phi/576.)*2*M_PI);
-    else if (type==uGMTPhase2_emu) return modulo2PI(phi);
+    else if (type==uGMTPhase2_emu ) return modulo2PI(phi);
     else return 9999.;
   }
-int L1Obj::chargeValue() const { return type==uGMTPhase2_emu ? charge : pow(-1,charge); }
+int L1Obj::chargeValue() const { return (type==uGMTPhase2_emu || type==SAMuon) ? charge : pow(-1,charge); }
 
 double L1Obj::ptUnconstrainedValue() const { return ptUnconstrained - 1;}
 double L1Obj::z0Value() const { return z0;}
@@ -62,6 +62,7 @@ std::ostream & operator<< (std::ostream &out, const L1Obj &o)
     case L1Obj::uGMT     : { out <<"uGMT    "; break; }
     case L1Obj::uGMT_emu : { out <<"uGMT_emu"; break; }
     case L1Obj::uGMTPhase2_emu : { out <<"uGMTPhase2_emu"; break; }
+    case L1Obj::SAMuon   : { out <<"SAMuon  "; break; }
     case L1Obj::NONE     : { out <<"NONE    "; break; }
     default: out <<"Unknown";
   };

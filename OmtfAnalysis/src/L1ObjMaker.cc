@@ -1,5 +1,6 @@
 #include "UserCode/OmtfAnalysis/interface/L1ObjMaker.h"
 
+#include <charconv>
 #include <iostream>
 #include <sstream>
 
@@ -17,12 +18,14 @@
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/L1TMuonPhase2/interface/TrackerMuon.h"
+#include "DataFormats/L1TMuonPhase2/interface/SAMuon.h"
 
 using namespace std;
 namespace {
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> theOmtfEmulToken, theOmtfDataToken, theEmtfDataToken, theBmtfDataToken;
   edm::EDGetTokenT<l1t::MuonBxCollection> theGmtDataToken, theGmtEmulToken;
   edm::EDGetTokenT<l1t::TrackerMuonCollection> theGmtPhase2EmulToken;
+  edm::EDGetTokenT<std::vector<l1t::SAMuon>> theSAMuonMatchToken;
 }
 
 L1ObjMaker::L1ObjMaker(const  edm::ParameterSet & cfg, edm::ConsumesCollector&& cColl)
@@ -35,7 +38,9 @@ L1ObjMaker::L1ObjMaker(const  edm::ParameterSet & cfg, edm::ConsumesCollector&& 
   if (theConfig.exists("emtfDataSrc")) theEmtfDataToken =  cColl.consumes<l1t::RegionalMuonCandBxCollection>(  theConfig.getParameter<edm::InputTag>("emtfDataSrc") );
   if (theConfig.exists("gmtDataSrc"))  theGmtDataToken  =  cColl.consumes<l1t::MuonBxCollection>( theConfig.getParameter<edm::InputTag>("gmtDataSrc") );
   if (theConfig.exists("gmtEmulSrc"))  theGmtEmulToken  =  cColl.consumes<l1t::MuonBxCollection>( theConfig.getParameter<edm::InputTag>("gmtEmulSrc") );
-  if (theConfig.exists("gmtPhase2EmulSrc"))  theGmtPhase2EmulToken  =  cColl.consumes<l1t::TrackerMuonCollection>(theConfig.getParameter<edm::InputTag>("gmtPhase2EmulSrc"));  
+  if (theConfig.exists("gmtPhase2EmulSrc"))  theGmtPhase2EmulToken  =  cColl.consumes<l1t::TrackerMuonCollection>(theConfig.getParameter<edm::InputTag>("gmtPhase2EmulSrc"));
+
+  if (theConfig.exists("SAMuonsMatch"))  theSAMuonMatchToken  =  cColl.consumes<std::vector<l1t::SAMuon>>(theConfig.getParameter<edm::InputTag>("SAMuonsMatch"));
  
 }
 
@@ -53,6 +58,8 @@ void L1ObjMaker::run(const edm::Event &ev)
   if (!theBmtfDataToken.isUninitialized())  makeRegCandidates(ev, L1Obj::BMTF    , theL1Objs);
   if (!theEmtfDataToken.isUninitialized())  makeRegCandidates(ev, L1Obj::EMTF    , theL1Objs);
   if (!theGmtPhase2EmulToken.isUninitialized())  makeGmtPhase2Candidates(ev, L1Obj::uGMTPhase2_emu, theL1Objs);
+  if (!theSAMuonMatchToken.isUninitialized())  makeSAMuonMatch(ev, L1Obj::SAMuon, theL1Objs);
+
 }
 
 bool L1ObjMaker::makeGmtCandidates(const edm::Event &iEvent,  L1Obj::TYPE type, std::vector<L1Obj> &result)
@@ -116,8 +123,20 @@ bool L1ObjMaker::makeRegCandidates(const edm::Event &iEvent,  L1Obj::TYPE type, 
     obj.refLayer = hwAddrMap[1];    
     obj.disc = hwAddrMap[2];    
     result.push_back(obj);   
+    // if (type == 10){
+    //   std::cout << "OMTF: " << std::endl;
+    //   std::cout << "pt: " << (obj.pt - 1) / 2.0 << " GeV" << std::endl;
+    //   std::cout << "eta: " << obj.eta / 240.0 * 2.61 << std::endl;
+    //   std::cout << "phi: " << ((15.0 + obj.iProcessor * 60.0) / 360.0 + obj.phi / 576.0) * 2 * M_PI << " rad" << std::endl;
+    //   std::cout << "hwPt: " << obj.pt << std::endl;
+    //   std::cout << "hwEta: " << obj.eta << std::endl;
+    //   std::cout << "hwPhi: " << obj.phi << std::endl;
+
+    // }
   }
+
   }
+
   return true;
 }
 
@@ -141,7 +160,47 @@ bool L1ObjMaker::makeGmtPhase2Candidates(const edm::Event &iEvent,  L1Obj::TYPE 
     obj.q   = 12;                             
     obj.bx = 0;
     obj.charge = aCand.phCharge();
+    obj.hwBeta = aCand.hwBeta();
     result.push_back(obj);
   }
   return true; 
+}
+
+bool L1ObjMaker::makeSAMuonMatch(const edm::Event &iEvent, L1Obj::TYPE type, std::vector<L1Obj> &result)
+{
+  edm::Handle<std::vector<l1t::SAMuon>> candidates;
+  switch (type) {
+    case L1Obj::SAMuon: {
+      iEvent.getByToken(theSAMuonMatchToken, candidates);
+      break;
+    }
+    default: {
+      std::cout << "Invalid type: " << type << std::endl;
+      abort();
+    }
+  }
+
+  for (const auto &aCand : *candidates.product()) {
+    L1Obj obj;
+    obj.type = type;
+    obj.phi = aCand.phPhi();
+    obj.eta = aCand.phEta();
+    obj.pt = aCand.phPt();
+    obj.charge = aCand.phCharge();
+    obj.z0 = aCand.phZ0();
+    obj.d0 = aCand.phD0();
+    obj.hwBeta = aCand.hwBeta();
+    obj.commonStubCount = aCand.commonStubCount();
+    obj.totalStubQuality = aCand.totalStubQuality();
+    obj.totalStubCount = aCand.totalStubCount();
+    obj.commonStubQuality = aCand.commonStubQuality();
+    obj.q   = aCand.hwQual();                        
+    obj.bx = 0;
+
+    
+
+
+    result.push_back(obj);
+  }
+  return true;
 }

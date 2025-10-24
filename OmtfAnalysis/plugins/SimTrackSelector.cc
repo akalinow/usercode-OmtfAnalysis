@@ -14,6 +14,6 @@ typedef SingleObjectSelector< std::vector<SimTrack>, StringCutObjectSelector<Sim
 
 DEFINE_FWK_MODULE(SimTrackSelector);
 
-typedef ObjectCountFilter< std::vector<SimTrack>, StringCutObjectSelector<SimTrack> >::type SimTrackEtaFilter;
+typedef ObjectCountFilter< std::vector<SimTrack>, StringCutObjectSelector<SimTrack> >::type SimTrackFilter;
 
-DEFINE_FWK_MODULE(SimTrackEtaFilter);
+DEFINE_FWK_MODULE(SimTrackFilter);

@@ -6,6 +6,7 @@
 <use   name="DataFormats/L1CSCTrackFinder"/>
 <use   name="DataFormats/FEDRawData"/>
 <use   name="DataFormats/L1GlobalMuonTrigger"/>
+<use   name="DataFormats/L1TMuonPhase2"/>
 <use   name="DataFormats/L1GlobalTrigger"/>
 <use   name="DataFormats/MuonReco"/>
 <use   name="DataFormats/TrackReco"/>
@@ -14,10 +15,11 @@
 <use   name="L1Trigger/CSCTrackFinder"/>
 <use   name="L1Trigger/RPCTrigger"/>
 <use   name="L1Trigger/L1TMuonOverlap"/>
+<use   name="L1Trigger/L1TMuonEndCapPhase2"/>
 <use   name="HLTrigger/HLTcore"/>
 <use   name="DQMServices/Core"/>
 <use   name="Geometry/RPCGeometry"/>
-<use   name="Geometry/CommonDetUnit"/>
+<use   name="Geometry/CommonTopologies"/>
 <use   name="Geometry/Records"/>
 <use   name="EventFilter/RPCRawToDigi"/>
 <use   name="EventFilter/L1TRawToDigi"/>

@@ -8,7 +8,7 @@ class L1Obj : public TObject {
 
 public:
   
-  enum TYPE { NONE, RPCb, RPCf, DT, CSC, GMT, RPCb_emu, RPCf_emu, GMT_emu, OMTF, OMTF_emu, BMTF, EMTF, uGMT, uGMT_emu, uGMTPhase2_emu, SAMuon};
+  enum TYPE { NONE, RPCb, RPCf, DT, CSC, GMT, RPCb_emu, RPCf_emu, GMT_emu, OMTF, OMTF_emu, BMTF, EMTF, uGMT, uGMT_emu, uGMTPhase2Default, uGMTPhase2Extended, SAMuon, DisplacedSAMuon, EMTFPhase2 };
 
   double pt{0}, eta{0}, phi{0};
   double ptUnconstrained{0};

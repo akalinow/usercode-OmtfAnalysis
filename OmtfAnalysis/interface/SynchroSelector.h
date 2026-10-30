@@ -7,7 +7,7 @@
 
 
 class TH1F;
-class RPCDetId;
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 class TrajectoryStateOnSurface;
 
 namespace edm { class Event; class EventSetup; }

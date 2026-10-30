@@ -400,7 +400,7 @@ private:
 };
 
 
-class OmtfUnpackerPriv: public edm::stream::EDProducer<> {
+class OmtfUnpackerPriv: public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
 
     ///Constructor

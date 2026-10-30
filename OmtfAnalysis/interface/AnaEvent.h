@@ -5,6 +5,7 @@ class EventObj;
 class TObjArray;
 namespace edm { class ParameterSet; }
 
+#include <cstdint>
 #include <map>
 #include <vector>
 #include <bitset>

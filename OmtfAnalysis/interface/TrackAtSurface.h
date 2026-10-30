@@ -3,7 +3,7 @@
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -14,8 +14,8 @@
 
 
 namespace edm {class Event; class EventSetup; }
-namespace reco { class Muon; }
-class RPCDetId;
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
 class TrackAtSurface {
 public:

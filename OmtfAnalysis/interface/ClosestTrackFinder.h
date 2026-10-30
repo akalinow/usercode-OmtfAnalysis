@@ -8,7 +8,7 @@
 #include "UserCode/OmtfDataFormats/interface/MuonObj.h"
 
 namespace edm { class Event; class EventSetup; }
-namespace reco { class Track; }
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include <vector>
 

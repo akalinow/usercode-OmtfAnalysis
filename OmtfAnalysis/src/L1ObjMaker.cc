@@ -1,6 +1,7 @@
 #include "UserCode/OmtfAnalysis/interface/L1ObjMaker.h"
 
 #include <charconv>
+#include <cmath>
 #include <iostream>
 #include <sstream>
 
@@ -19,13 +20,19 @@
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/L1TMuonPhase2/interface/TrackerMuon.h"
 #include "DataFormats/L1TMuonPhase2/interface/SAMuon.h"
+#include "DataFormats/L1TMuonPhase2/interface/EMTFTrack.h"
+#include "DataFormats/L1TMuonPhase2/interface/Constants.h"
+#include "L1Trigger/L1TMuonEndCapPhase2/interface/Utils/TPUtils.h"
 
 using namespace std;
 namespace {
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> theOmtfEmulToken, theOmtfDataToken, theEmtfDataToken, theBmtfDataToken;
+  edm::EDGetTokenT<l1t::phase2::EMTFTrackCollection> theEmtfPhase2DataToken;
   edm::EDGetTokenT<l1t::MuonBxCollection> theGmtDataToken, theGmtEmulToken;
-  edm::EDGetTokenT<l1t::TrackerMuonCollection> theGmtPhase2EmulToken;
+  edm::EDGetTokenT<l1t::TrackerMuonCollection> theGmtPhase2DefaultToken;
+  edm::EDGetTokenT<l1t::TrackerMuonCollection> theGmtPhase2ExtendedToken;
   edm::EDGetTokenT<std::vector<l1t::SAMuon>> theSAMToken;
+  edm::EDGetTokenT<std::vector<l1t::SAMuon>> theDisplacedSAMToken;
 }
 
 L1ObjMaker::L1ObjMaker(const  edm::ParameterSet & cfg, edm::ConsumesCollector&& cColl)
@@ -36,11 +43,14 @@ L1ObjMaker::L1ObjMaker(const  edm::ParameterSet & cfg, edm::ConsumesCollector&& 
   if (theConfig.exists("omtfDataSrc")) theOmtfDataToken =  cColl.consumes<l1t::RegionalMuonCandBxCollection>(  theConfig.getParameter<edm::InputTag>("omtfDataSrc") );
   if (theConfig.exists("bmtfDataSrc")) theBmtfDataToken =  cColl.consumes<l1t::RegionalMuonCandBxCollection>(  theConfig.getParameter<edm::InputTag>("bmtfDataSrc") );
   if (theConfig.exists("emtfDataSrc")) theEmtfDataToken =  cColl.consumes<l1t::RegionalMuonCandBxCollection>(  theConfig.getParameter<edm::InputTag>("emtfDataSrc") );
+  if (theConfig.exists("emtfPhase2DataSrc")) theEmtfPhase2DataToken = cColl.consumes<l1t::phase2::EMTFTrackCollection>(theConfig.getParameter<edm::InputTag>("emtfPhase2DataSrc"));
   if (theConfig.exists("gmtDataSrc"))  theGmtDataToken  =  cColl.consumes<l1t::MuonBxCollection>( theConfig.getParameter<edm::InputTag>("gmtDataSrc") );
   if (theConfig.exists("gmtEmulSrc"))  theGmtEmulToken  =  cColl.consumes<l1t::MuonBxCollection>( theConfig.getParameter<edm::InputTag>("gmtEmulSrc") );
-  if (theConfig.exists("gmtPhase2EmulSrc"))  theGmtPhase2EmulToken  =  cColl.consumes<l1t::TrackerMuonCollection>(theConfig.getParameter<edm::InputTag>("gmtPhase2EmulSrc"));
+  if (theConfig.exists("gmtPhase2DefaultSrc"))  theGmtPhase2DefaultToken  =  cColl.consumes<l1t::TrackerMuonCollection>(theConfig.getParameter<edm::InputTag>("gmtPhase2DefaultSrc"));
+  if (theConfig.exists("gmtPhase2ExtendedSrc"))  theGmtPhase2ExtendedToken  =  cColl.consumes<l1t::TrackerMuonCollection>(theConfig.getParameter<edm::InputTag>("gmtPhase2ExtendedSrc"));
   if (theConfig.exists("samSrc"))  theSAMToken  =  cColl.consumes<std::vector<l1t::SAMuon>>(theConfig.getParameter<edm::InputTag>("samSrc"));
- 
+  if (theConfig.exists("displacedSamSrc"))  theDisplacedSAMToken  =  cColl.consumes<std::vector<l1t::SAMuon>>(theConfig.getParameter<edm::InputTag>("displacedSamSrc"));
+  
 }
 
 void L1ObjMaker::run(const edm::Event &ev)
@@ -50,15 +60,24 @@ void L1ObjMaker::run(const edm::Event &ev)
   lastRun = ev.run();
   theL1Objs.clear();
 
-  if ( !theGmtDataToken.isUninitialized())  makeGmtCandidates(ev, L1Obj::uGMT    , theL1Objs);
-  if ( !theGmtEmulToken.isUninitialized())  makeGmtCandidates(ev, L1Obj::uGMT_emu, theL1Objs);
   if (!theOmtfDataToken.isUninitialized())  makeRegCandidates(ev, L1Obj::OMTF    , theL1Objs);
   if (!theOmtfEmulToken.isUninitialized())  makeRegCandidates(ev, L1Obj::OMTF_emu, theL1Objs);
   if (!theBmtfDataToken.isUninitialized())  makeRegCandidates(ev, L1Obj::BMTF    , theL1Objs);
   if (!theEmtfDataToken.isUninitialized())  makeRegCandidates(ev, L1Obj::EMTF    , theL1Objs);
-  if (!theGmtPhase2EmulToken.isUninitialized())  makeGmtPhase2Candidates(ev, L1Obj::uGMTPhase2_emu, theL1Objs);
+  if (!theEmtfPhase2DataToken.isUninitialized()) makeEmtfPhase2Candidates(ev, L1Obj::EMTFPhase2, theL1Objs);
+  if ( !theGmtDataToken.isUninitialized())  makeGmtCandidates(ev, L1Obj::uGMT    , theL1Objs);
+  if ( !theGmtEmulToken.isUninitialized())  makeGmtCandidates(ev, L1Obj::uGMT_emu, theL1Objs);
+  if (!theGmtPhase2DefaultToken.isUninitialized())  makeGmtPhase2Candidates(ev, L1Obj::uGMTPhase2Default, theL1Objs);
+  if (!theGmtPhase2ExtendedToken.isUninitialized())  makeGmtPhase2Candidates(ev, L1Obj::uGMTPhase2Extended, theL1Objs);
   if (!theSAMToken.isUninitialized())  makeSAMCandidates(ev, L1Obj::SAMuon, theL1Objs);
+  if (!theDisplacedSAMToken.isUninitialized())  makeSAMCandidates(ev, L1Obj::DisplacedSAMuon, theL1Objs);
 
+  //Add a dummy L1Obj to avoid empty vector problems downstream
+  if (theL1Objs.size() == 0) {
+    L1Obj obj;
+    obj.type = L1Obj::NONE;
+    theL1Objs.push_back(obj); 
+  }
 }
 
 bool L1ObjMaker::makeGmtCandidates(const edm::Event &iEvent,  L1Obj::TYPE type, std::vector<L1Obj> &result)
@@ -82,6 +101,8 @@ bool L1ObjMaker::makeGmtCandidates(const edm::Event &iEvent,  L1Obj::TYPE type, 
     obj.bx = bxNumber;
     obj.charge = it->hwCharge();  // charge  =  pow(-1,hwSign)
     result.push_back(obj);
+
+    //std::cout<<"GMT: " << obj << std::endl;
   }
   }
   return true; 
@@ -132,10 +153,47 @@ bool L1ObjMaker::makeRegCandidates(const edm::Event &iEvent,  L1Obj::TYPE type, 
     //   std::cout << "hwPhi: " << obj.phi << std::endl;
 
     // }
-  }
+//std::cout<<"Regional: " << obj << std::endl;
+  }    
+
 
   }
 
+  return true;
+}
+
+bool L1ObjMaker::makeEmtfPhase2Candidates(const edm::Event &iEvent, L1Obj::TYPE type, std::vector<L1Obj> &result)
+{
+  edm::Handle<l1t::phase2::EMTFTrackCollection> candidates;
+  iEvent.getByToken(theEmtfPhase2DataToken, candidates);
+
+  for (const auto &track : *candidates) {
+    L1Obj obj;
+    obj.type = type;
+    obj.iProcessor = track.sector() - 1;
+    obj.position = track.endcap() == 1 ? 1 : -1;
+
+    const double localPhi =
+        emtf::phase2::tp::calcPhiLocRadFromInt(track.modelPhi());
+    const double globalPhi =
+        emtf::phase2::tp::calcPhiGlobRadFromLoc(track.sector(), localPhi);
+    const double theta = emtf::phase2::tp::calcThetaRadFromInt(track.modelEta());
+    const double eta = -std::log(std::tan(theta / 2.)) * track.endcap();
+    const double pt = track.emtfPt() * Phase2L1GMT::LSBpt;
+    //const double processorPhiOffset = (15. + obj.iProcessor * 60.) / 360.;
+
+    // Store Phase-2 tracks in the legacy EMTF hardware-like coordinates.
+    obj.phi = globalPhi;
+    obj.eta = eta;
+    obj.pt = pt;
+    obj.ptUnconstrained = track.unconstrained() ? pt : 0.;
+    obj.charge = track.emtfQ();
+    obj.q = track.emtfQuality()*track.valid()*(track.emtfRels()==127); //  max relevance score (127) as in Phase2L1TGMTFwdMuonTranslator::ConvertEMTFTrack
+    obj.bx = track.bx();
+    obj.d0 = track.emtfD0();
+    obj.z0 = track.emtfZ0();
+    result.push_back(obj);
+  }
   return true;
 }
 
@@ -144,7 +202,8 @@ bool L1ObjMaker::makeGmtPhase2Candidates(const edm::Event &iEvent,  L1Obj::TYPE 
 {  
   edm::Handle<l1t::TrackerMuonCollection> candidates;
   switch (type) {
-    case  L1Obj::uGMTPhase2_emu    : { iEvent.getByToken(theGmtPhase2EmulToken, candidates); break; }    
+    case  L1Obj::uGMTPhase2Default    : { iEvent.getByToken(theGmtPhase2DefaultToken, candidates); break; }
+    case  L1Obj::uGMTPhase2Extended    : { iEvent.getByToken(theGmtPhase2ExtendedToken, candidates); break; }
     default: { std::cout <<"Invalid type : " << type << std::endl; abort(); }
   }
 
@@ -156,7 +215,7 @@ bool L1ObjMaker::makeGmtPhase2Candidates(const edm::Event &iEvent,  L1Obj::TYPE 
     obj.phi = aCand.phPhi();
     obj.eta = aCand.phEta();
     obj.pt = aCand.phPt();
-    obj.q   = 12;                             
+    obj.q   = aCand.hwQual();                             
     obj.bx = 0;
     obj.charge = aCand.phCharge();
     obj.hwBeta = aCand.hwBeta();
@@ -173,6 +232,10 @@ bool L1ObjMaker::makeSAMCandidates(const edm::Event &iEvent, L1Obj::TYPE type, s
       iEvent.getByToken(theSAMToken, candidates);
       break;
     }
+    case L1Obj::DisplacedSAMuon: {
+      iEvent.getByToken(theDisplacedSAMToken, candidates);
+      break;
+    }
     default: {
       std::cout << "Invalid type: " << type << std::endl;
       abort();
@@ -180,6 +243,7 @@ bool L1ObjMaker::makeSAMCandidates(const edm::Event &iEvent, L1Obj::TYPE type, s
   }
 
   for (const auto &aCand : *candidates.product()) {
+
     L1Obj obj;
     obj.type = type;
     obj.phi = aCand.phPhi();

@@ -11,7 +11,7 @@
 
 
 namespace edm { class ParameterSet; class Event; class EventSetup; }
-namespace reco { class Muon; }
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 class GlobalTrackingGeometry;
 class GlobalTrackingGeometryRecord;
 class DTGeometry;

@@ -45,7 +45,7 @@
 #include "TObjArray.h"
 
 namespace edm { class Event; class EventSetup; }
-namespace reco { class Muon; }
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
  class TTree;
 class TFile;
 

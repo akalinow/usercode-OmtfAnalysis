@@ -19,7 +19,7 @@
 
 
 namespace edm { class Event; class EventSetup; class Run;}
-namespace reco { class Muon; }
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 class TObjArray;
 

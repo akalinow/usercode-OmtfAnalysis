@@ -16,7 +16,7 @@
 
 
 namespace edm { class Event; class EventSetup; }
-namespace reco { class Muon; }
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 namespace edm { class EDAnalyzer; }
 
 #include <vector>
